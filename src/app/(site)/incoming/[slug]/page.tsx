@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { track } from "@/lib/analytics";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Example } from "@/components/blocks";
@@ -18,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function IncomingPage({ params }: Props) {
   const p = await incomingOne((await params).slug);
   if (!p) notFound();
+  await track(`/incoming/${p.slug}`, { contentType: "incoming", contentId: p.id });
   const r = p.release;
   return (
     <section className="sec">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { track } from "@/lib/analytics";
 import { Empty, SecHead } from "@/components/blocks";
 import { ReviewCard } from "@/components/ReviewCard";
 import { reviewList, reviewView } from "@/lib/content";
@@ -7,6 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Rated", description: "Every release scored out of 100." };
 
 export default async function Rated() {
+  await track("/rated", { contentType: "rated" });
   const list = await reviewList();
   return (
     <section className="sec">

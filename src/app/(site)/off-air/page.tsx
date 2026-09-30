@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { track } from "@/lib/analytics";
 import { InterviewCard, Empty, SecHead } from "@/components/blocks";
 import { interviewList } from "@/lib/content";
 
@@ -6,6 +7,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Off Air", description: "Interviews. Answers published exactly as sent." };
 
 export default async function OffAir() {
+  await track("/off-air", { contentType: "offair" });
   const list = await interviewList();
   return (
     <section className="sec">

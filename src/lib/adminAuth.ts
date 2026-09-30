@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createHash, randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { SKIP_COOKIE } from "@/lib/analytics";
 
 const COOKIE = "da_admin";
 const SESSION_HOURS = 12;
@@ -61,6 +62,8 @@ export async function login(email: string, password: string): Promise<{ ok: true
     path: "/admin",
     expires: expiresAt,
   });
+  // Keeps the admin's own visits out of the numbers. Only set in the admin's browser.
+  (await cookies()).set(SKIP_COOKIE, "1", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
   await audit(user.id, "login.ok");
   return { ok: true };
 }

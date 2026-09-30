@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { track } from "@/lib/analytics";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OpinionItem } from "@/components/blocks";
@@ -17,6 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function OpinionPage({ params }: Props) {
   const o = await opinionOne((await params).slug);
   if (!o) notFound();
+  await track(`/hot-air/${o.slug}`, { contentType: "hotair", contentId: o.id });
   return (
     <section className="sec">
       <p><Link className="back" href="/hot-air">Hot Air</Link></p>

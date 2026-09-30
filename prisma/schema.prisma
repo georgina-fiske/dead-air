@@ -187,11 +187,15 @@ model PageView {
   contentId   String?
   referrer    String?
   country     String?
+  region      String?
   device      String?
-  sessionHash String
+  // Both hashes use a rotating salt, so nothing links back to a person or an IP.
+  sessionHash String // salt changes daily
+  weekHash    String? // salt changes weekly, so "returning" can be told apart within a week
 
   @@index([at])
   @@index([path, at])
+  @@index([contentType, contentId, at])
 }
 
 // Uploaded images. Resized on upload, stored in Postgres. Served from /media/<id>.

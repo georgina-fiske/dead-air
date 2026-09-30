@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { track } from "@/lib/analytics";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InterviewCard } from "@/components/blocks";
@@ -16,6 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function InterviewPage({ params }: Props) {
   const i = await interviewOne((await params).slug);
   if (!i) notFound();
+  await track(`/off-air/${i.slug}`, { contentType: "offair", contentId: i.id });
   return (
     <section className="sec">
       <p><Link className="back" href="/off-air">Off Air</Link></p>

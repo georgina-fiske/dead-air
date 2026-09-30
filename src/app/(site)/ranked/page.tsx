@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { track } from "@/lib/analytics";
 import Link from "next/link";
 import { Empty, RankRow, SecHead } from "@/components/blocks";
 import { scoredReviews } from "@/lib/content";
@@ -14,6 +15,7 @@ export default async function Ranked({ searchParams }: Props) {
   const sp = await searchParams;
   const view = sp.view === "artists" ? "artists" : "releases";
   const by: SortKey = SORT_KEYS.some((k) => k.key === sp.by) ? (sp.by as SortKey) : "total";
+  await track("/ranked", { contentType: "ranked", contentId: `${view}:${view === "artists" ? "average" : by}` });
   const scored = await scoredReviews();
   return (
     <section className="sec">

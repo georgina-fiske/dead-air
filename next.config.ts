@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  serverExternalPackages: ["geoip-lite", "sharp"],
   trailingSlash: false,
   async headers() {
     return [

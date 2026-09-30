@@ -1,3 +1,4 @@
+import { track } from "@/lib/analytics";
 import { IncomingRow, InterviewCard, OpinionItem, Empty, SecHead, RankRow } from "@/components/blocks";
 import { ReviewCard } from "@/components/ReviewCard";
 import { incomingList, interviewList, opinionList, reviewList, reviewView, scoredReviews } from "@/lib/content";
@@ -6,6 +7,7 @@ import { sortReleases } from "@/lib/ranked";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  await track("/", { contentType: "home" });
   const [rated, incoming, interviews, opinions, scored] = await Promise.all([
     reviewList(2), incomingList(6), interviewList(1), opinionList(2), scoredReviews(),
   ]);
