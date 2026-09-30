@@ -204,3 +204,19 @@ footer { margin-top: 64px; border-top: 4px solid var(--line); padding-top: 14px;
 .bt-b { width: 38%; }
 .bt-b i { display: block; height: 8px; background: var(--fg); border-radius: 0 2px 2px 0; min-width: 2px; }
 details summary { cursor: pointer; padding-block: 8px; }
+
+/* home: wide left column, skinny right column */
+.home { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 40px; }
+.home-main, .home-side { min-width: 0; }
+@media (min-width: 900px) { .home { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start; } }
+/* compact review card for the skinny column: score on top, lines below */
+.rated.compact { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 14px; }
+.rated.compact .score { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: end; }
+.rated.compact .score .num { font-size: 4rem; grid-row: 1 / span 2; }
+.rated.compact .score .bar { align-self: center; }
+.rated.compact .cover { grid-column: 1 / -1; max-width: 100%; }
+.rated.compact .line { grid-template-columns: minmax(0, 1fr); }
+.rated.compact .lab { display: flex; gap: 8px; align-items: baseline; }
+.rated.compact .lab b { display: inline; }
+.rated.compact .ct { font-size: 1.15rem; }
+.rated.compact .take { font-size: 1rem; }

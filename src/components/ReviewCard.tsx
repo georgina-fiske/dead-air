@@ -11,11 +11,11 @@ export type ReviewView = {
   total: number | null; cover?: string | null;
 };
 
-export function ReviewCard({ r, link = true }: { r: ReviewView; link?: boolean }) {
+export function ReviewCard({ r, link = true, compact = false }: { r: ReviewView; link?: boolean; compact?: boolean }) {
   const total = r.total;
   const heading = `${r.artist || "Artist"} – ${r.title || "Title"}`;
   return (
-    <article className="card rated">
+    <article className={`card rated${compact ? " compact" : ""}`}>
       <div className="score">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {r.cover && <img className="cover" src={r.cover} alt={`${r.artist} \u2013 ${r.title} cover`} />}

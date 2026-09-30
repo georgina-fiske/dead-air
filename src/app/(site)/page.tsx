@@ -13,29 +13,31 @@ export default async function Home() {
   ]);
   const top = sortReleases(scored).slice(0, 5);
   return (
-    <>
-      <section className="sec">
-        <SecHead title="Rated" href="/rated" />
-        {rated.length ? <div className="cards">{rated.map((r) => <ReviewCard key={r.id} r={reviewView(r)} />)}</div> : <Empty />}
-      </section>
-      <div className="split">
+    <div className="home">
+      <div className="home-main">
         <section className="sec">
           <SecHead title="Incoming" href="/incoming" />
           {incoming.length ? incoming.map((p) => <IncomingRow key={p.id} p={p} />) : <Empty />}
         </section>
         <section className="sec">
-          <SecHead title="Ranked" href="/ranked" />
-          {top.length ? top.map((r, i) => <RankRow key={r.slug} n={i + 1} name={`${r.artist} – ${r.title}`} score={r.total} />) : <Empty />}
+          <SecHead title="Off Air" href="/off-air" />
+          {interviews.length ? interviews.map((i) => <InterviewCard key={i.id} i={i} full={false} />) : <Empty />}
+        </section>
+        <section className="sec">
+          <SecHead title="Hot Air" href="/hot-air" />
+          {opinions.length ? opinions.map((o) => <OpinionItem key={o.id} o={o} full={false} />) : <Empty />}
         </section>
       </div>
-      <section className="sec">
-        <SecHead title="Off Air" href="/off-air" />
-        {interviews.length ? interviews.map((i) => <InterviewCard key={i.id} i={i} full={false} />) : <Empty />}
-      </section>
-      <section className="sec">
-        <SecHead title="Hot Air" href="/hot-air" />
-        {opinions.length ? opinions.map((o) => <OpinionItem key={o.id} o={o} full={false} />) : <Empty />}
-      </section>
-    </>
+      <aside className="home-side">
+        <section className="sec">
+          <SecHead title="Rated" href="/rated" />
+          {rated.length ? <div className="cards">{rated.map((r) => <ReviewCard key={r.id} r={reviewView(r)} compact />)}</div> : <Empty />}
+        </section>
+        <section className="sec">
+          <SecHead title="Ranked" href="/ranked" />
+          {top.length ? top.map((r, i) => <RankRow key={r.slug} n={i + 1} name={`${r.artist} \u2013 ${r.title}`} score={r.total} />) : <Empty />}
+        </section>
+      </aside>
+    </div>
   );
 }
