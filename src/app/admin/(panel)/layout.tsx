@@ -24,7 +24,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <nav className="nav" aria-label="Admin">
           {NAV.map((n) => <Link key={n.href} href={n.href}>{n.label}</Link>)}
         </nav>
-        <form action={logoutAction} className="who">
+        <form action={logoutAction} className="admin-who">
           <span>{user.email}</span>
           <button type="submit">Log out</button>
         </form>
