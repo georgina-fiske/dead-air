@@ -141,3 +141,35 @@ footer { margin-top: 64px; border-top: 4px solid var(--line); padding-top: 14px;
 .btn { font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; background: var(--fg); color: var(--bg); border: 2px solid var(--line); padding: 10px 16px; cursor: pointer; text-decoration: none; display: inline-block; }
 .btn.ghost { background: transparent; color: var(--fg); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* admin editors */
+.editor { display: grid; gap: 28px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 980px) { .editor { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } .editor .preview { position: sticky; top: 16px; } }
+.fld { display: grid; gap: 4px; margin-bottom: 14px; }
+.fld > span { font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.fld em { text-transform: none; color: var(--muted); font-style: normal; letter-spacing: 0; }
+.fld input, .fld select, .fld textarea, .schedule input { font: inherit; padding: 9px 11px; border: 2px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 0; width: 100%; }
+.fld textarea { min-height: 9rem; resize: vertical; line-height: 1.5; }
+.row2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.scorebox { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 6px 12px; align-items: start; margin-bottom: 12px; }
+.scorebox .fld { margin: 0; }
+.total { font-family: var(--font-display); font-weight: 900; font-size: 3.4rem; letter-spacing: -0.05em; line-height: 0.9; margin: 8px 0 18px; }
+.total small { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 400; letter-spacing: 0; color: var(--muted); }
+.statusbar { border-top: 2px solid var(--line); padding-top: 14px; margin-top: 20px; display: grid; gap: 12px; }
+.statusbar p { margin: 0; }
+.schedule { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.schedule label { display: grid; gap: 4px; font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase; }
+.warn { padding: 8px 12px; border: 2px dashed var(--line); font-family: var(--font-mono); font-size: 0.85rem; }
+.voice { border: 2px solid var(--line); padding: 12px 14px; margin-bottom: 14px; }
+.voice h4 { margin: 0 0 6px; font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.voice ul { margin: 0 0 8px; padding-left: 18px; }
+.voice li span { color: var(--muted); }
+.verbatim { display: inline-block; font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; background: var(--accent-2); color: var(--on-accent); padding: 1px 6px; margin-left: 6px; }
+.qa-edit { border: 2px solid var(--line); padding: 12px; margin-bottom: 12px; }
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th { text-align: left; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 400; padding: 6px 8px 6px 0; border-bottom: 2px solid var(--line); }
+.tbl td { padding: 10px 8px 10px 0; border-bottom: 1px solid var(--soft); vertical-align: baseline; }
+.pill { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--muted); padding: 1px 6px; color: var(--muted); }
+.pill.live { border-color: var(--fg); color: var(--fg); background: var(--accent); }
+.saved { background: var(--accent); color: var(--on-accent); padding: 8px 12px; font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 16px; }
+.narrow-form { max-width: 560px; }

@@ -1,9 +1,6 @@
 import { notFound } from "next/navigation";
 
-const TITLES: Record<string, string> = {
-  rated: "Rated", incoming: "Incoming", "off-air": "Off Air", "hot-air": "Hot Air",
-  releases: "Releases", media: "Media", analytics: "Analytics",
-};
+const TITLES: Record<string, string> = { media: "Media", analytics: "Analytics" };
 
 export default async function Placeholder({ params }: { params: Promise<{ section: string }> }) {
   const { section } = await params;
