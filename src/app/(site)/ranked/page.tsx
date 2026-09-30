@@ -7,7 +7,7 @@ import { rankArtists, sortReleases, SORT_KEYS, type SortKey } from "@/lib/ranked
 import { TYPE_LABEL } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Ranked", description: "The year so far, sorted by score." };
+export const metadata: Metadata = { title: "Ranked", alternates: { canonical: "/ranked" }, description: "The year so far, sorted by score." };
 
 type Props = { searchParams: Promise<{ view?: string; by?: string }> };
 

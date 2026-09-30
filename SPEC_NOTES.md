@@ -27,3 +27,9 @@ Empty state: "Nothing here yet." Error: "That page is gone."
 
 ## Blocked on
 Empty GitHub repo `dead-air` connected to Claude Code on the web.
+
+## Search engines (added with SEO step)
+- Site is hidden from search engines until SITE_INDEXING=on is set on Railway (launch day).
+- Set SITE_URL=https://deadair.com.au once the domain is attached (used in sitemap, canonical links, share images).
+- Example content shows (tagged) until HIDE_EXAMPLES=1 is set. Remove examples from the admin Overview page.
+- Share images use Archivo Black as a placeholder font. Swap when Thunder is cleared for web use.

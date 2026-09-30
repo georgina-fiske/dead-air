@@ -5,7 +5,7 @@ import { ReviewCard } from "@/components/ReviewCard";
 import { reviewList, reviewView } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Rated", description: "Every release scored out of 100." };
+export const metadata: Metadata = { title: "Rated", alternates: { canonical: "/rated" }, description: "Every release scored out of 100." };
 
 export default async function Rated() {
   await track("/rated", { contentType: "rated" });

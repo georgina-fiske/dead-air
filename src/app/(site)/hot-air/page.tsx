@@ -4,7 +4,7 @@ import { OpinionItem, Empty, SecHead } from "@/components/blocks";
 import { opinionList } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Hot Air", description: "Opinion." };
+export const metadata: Metadata = { title: "Hot Air", alternates: { canonical: "/hot-air" }, description: "Opinion." };
 
 export default async function HotAir() {
   await track("/hot-air", { contentType: "hotair" });

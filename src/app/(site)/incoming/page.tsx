@@ -4,7 +4,7 @@ import { IncomingRow, Empty, SecHead } from "@/components/blocks";
 import { incomingList } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Incoming", description: "Press releases. Posted as sent." };
+export const metadata: Metadata = { title: "Incoming", alternates: { canonical: "/incoming" }, description: "Press releases. Posted as sent." };
 
 export default async function Incoming() {
   await track("/incoming", { contentType: "incoming" });

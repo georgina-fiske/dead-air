@@ -4,7 +4,7 @@ import { InterviewCard, Empty, SecHead } from "@/components/blocks";
 import { interviewList } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Off Air", description: "Interviews. Answers published exactly as sent." };
+export const metadata: Metadata = { title: "Off Air", alternates: { canonical: "/off-air" }, description: "Interviews. Answers published exactly as sent." };
 
 export default async function OffAir() {
   await track("/off-air", { contentType: "offair" });
