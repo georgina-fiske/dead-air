@@ -7,6 +7,7 @@ export default async function EditRelease({ params, searchParams }: { params: Pr
   const { id } = await params;
   const r = await db.release.findUnique({ where: { id }, include: { review: true, pressRelease: true } });
   if (!r) notFound();
+  const media = await db.mediaImage.findMany({ orderBy: { createdAt: "desc" }, select: { id: true, filename: true } });
   return (
     <section className="sec narrow-form">
       <div className="sec-head"><h2>{r.artist}</h2></div>
@@ -16,7 +17,7 @@ export default async function EditRelease({ params, searchParams }: { params: Pr
         {" · "}
         {r.review ? <Link href={`/admin/rated/${r.review.id}`}>Review</Link> : <Link href={`/admin/rated/new?release=${r.id}`}>Add review</Link>}
       </p>
-      <ReleaseForm r={{ id: r.id, artist: r.artist, title: r.title, type: r.type, releaseDate: r.releaseDate?.toISOString().slice(0, 10) ?? "", label: r.label ?? "", sourceUrl: r.sourceUrl ?? "" }} />
+      <ReleaseForm r={{ id: r.id, artist: r.artist, title: r.title, type: r.type, releaseDate: r.releaseDate?.toISOString().slice(0, 10) ?? "", label: r.label ?? "", sourceUrl: r.sourceUrl ?? "", coverId: r.coverId ?? "" }} media={media} />
     </section>
   );
 }

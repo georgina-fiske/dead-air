@@ -22,6 +22,8 @@ export default async function IncomingPage({ params }: Props) {
   return (
     <section className="sec">
       <p><Link className="back" href="/incoming">Incoming</Link></p>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      {r.coverId && <img className="cover" style={{ maxWidth: 320 }} src={`/media/${r.coverId}`} alt={`${r.artist} \u2013 ${r.title} cover`} />}
       <h1 className="h1">{r.artist} {"–"} {r.title}{p.isExample && <Example />}</h1>
       <p className="sub">{[TYPE_LABEL[r.type], r.label, fmtDate(r.releaseDate)].filter(Boolean).join(" · ")}</p>
       <div className="release-body">{p.body}</div>

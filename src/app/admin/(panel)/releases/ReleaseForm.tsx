@@ -1,11 +1,12 @@
 "use client";
 import { useActionState } from "react";
 import { Field } from "@/components/admin";
+import { CoverPicker, type MediaOpt } from "@/components/CoverPicker";
 import { saveRelease } from "./actions";
 
-type R = { id?: string; artist: string; title: string; type: string; releaseDate: string; label: string; sourceUrl: string };
+type R = { id?: string; artist: string; title: string; type: string; releaseDate: string; label: string; sourceUrl: string; coverId: string };
 
-export function ReleaseForm({ r }: { r: R }) {
+export function ReleaseForm({ r, media }: { r: R; media: MediaOpt[] }) {
   const [state, action, pending] = useActionState(saveRelease, undefined);
   return (
     <form action={action}>
@@ -23,6 +24,7 @@ export function ReleaseForm({ r }: { r: R }) {
       </div>
       <Field label="Label"><input name="label" defaultValue={r.label} /></Field>
       <Field label="Source URL" hint="where you found it"><input name="sourceUrl" type="url" defaultValue={r.sourceUrl} /></Field>
+      <CoverPicker media={media} value={r.coverId} />
       {state?.error && <p className="err" role="alert">{state.error}</p>}
       <div className="actions">
         <button className="btn" name="intent" value="save" disabled={pending}>Save release</button>

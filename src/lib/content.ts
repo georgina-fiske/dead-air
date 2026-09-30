@@ -59,6 +59,6 @@ export function reviewView(r: ReviewRow) {
     date: r.release.releaseDate, take: r.take, isFan: r.isFan, isExample: r.isExample,
     scores: { bias: r.bias, craft: r.craft, nerve: r.nerve, crowd: r.crowd, replay: r.replay },
     lines: { bias: r.biasLine, craft: r.craftLine, nerve: r.nerveLine, crowd: r.crowdLine, replay: r.replayLine },
-    total: r.total,
+    total: r.total, cover: r.release.coverId ? `/media/${r.release.coverId}` : null,
   };
 }

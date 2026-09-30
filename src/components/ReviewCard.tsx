@@ -8,7 +8,7 @@ export type ReviewView = {
   take: string; isFan?: boolean; isExample?: boolean;
   scores: Record<string, number | null | undefined>;
   lines: Record<string, string | undefined>;
-  total: number | null;
+  total: number | null; cover?: string | null;
 };
 
 export function ReviewCard({ r, link = true }: { r: ReviewView; link?: boolean }) {
@@ -17,6 +17,8 @@ export function ReviewCard({ r, link = true }: { r: ReviewView; link?: boolean }
   return (
     <article className="card rated">
       <div className="score">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {r.cover && <img className="cover" src={r.cover} alt={`${r.artist} \u2013 ${r.title} cover`} />}
         <div className="num">{total ?? "–"}</div>
         <div className="of">out of 100</div>
         <div className="bar"><i style={{ width: `${Math.max(0, Math.min(100, total ?? 0))}%` }} /></div>

@@ -1,15 +1,16 @@
 "use client";
 import { useActionState, useState } from "react";
 import { Field, StatusBar } from "@/components/admin";
+import { CoverPicker, type MediaOpt } from "@/components/CoverPicker";
 import { TYPE_LABEL, fmtDate } from "@/lib/format";
 import { savePress } from "./actions";
 
 export type PressInit = {
   id?: string; status?: string; releaseId: string; artist: string; title: string; type: string; releaseDate: string;
-  label: string; sourceUrl: string; body: string; receivedFrom: string; receivedAt: string;
+  label: string; sourceUrl: string; coverId: string; body: string; receivedFrom: string; receivedAt: string;
 };
 
-export function PressEditor({ init }: { init: PressInit }) {
+export function PressEditor({ init, media }: { init: PressInit; media: MediaOpt[] }) {
   const [state, action, pending] = useActionState(savePress, undefined);
   const [v, setV] = useState(init);
   const set = (k: keyof PressInit) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setV({ ...v, [k]: e.target.value });
@@ -40,11 +41,14 @@ export function PressEditor({ init }: { init: PressInit }) {
           <Field label="Received from"><input name="receivedFrom" value={v.receivedFrom} onChange={set("receivedFrom")} /></Field>
           <Field label="Received on"><input type="date" name="receivedAt" value={v.receivedAt} onChange={set("receivedAt")} /></Field>
         </div>
+        <CoverPicker media={media} value={init.coverId} />
         <Field label="Press release" hint="paste exactly as sent"><textarea name="body" value={v.body} onChange={set("body")} style={{ minHeight: "16rem" }} spellCheck={false} /></Field>
         <span className="verbatim">Verbatim</span> <span className="mono">Stored exactly as pasted. Never rewritten. Never checked for voice.</span>
         <StatusBar id={init.id} status={init.status} pending={pending} blocked={blocked} error={state?.error} />
       </div>
       <div className="preview">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {init.coverId && <img className="cover" style={{ maxWidth: 240 }} src={`/media/${init.coverId}`} alt="" />}
         <h1 className="h1">{v.artist || "Artist"} {"–"} {v.title || "Title"}</h1>
         <p className="sub">{[TYPE_LABEL[v.type], v.label, fmtDate(v.releaseDate)].filter(Boolean).join(" · ")}</p>
         <div className="release-body">{v.body}</div>

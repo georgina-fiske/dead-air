@@ -6,7 +6,7 @@ export default async function Releases() {
   const list = await db.release.findMany({ orderBy: { createdAt: "desc" }, include: { review: { select: { status: true } }, pressRelease: { select: { status: true } } } });
   return (
     <section className="sec">
-      <div className="sec-head"><h2>Releases</h2><Link className="btn" href="/admin/releases/new">New release</Link></div>
+      <div className="sec-head"><h2>Releases</h2><span className="actions"><Link className="btn ghost" href="/admin/releases/import">Import CSV</Link><Link className="btn" href="/admin/releases/new">New release</Link></span></div>
       {list.length === 0 ? <div className="empty">Nothing here yet.</div> : (
         <table className="tbl">
           <thead><tr><th>Artist</th><th>Title</th><th>Type</th><th>Date</th><th>Incoming</th><th>Rated</th></tr></thead>

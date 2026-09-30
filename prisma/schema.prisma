@@ -31,7 +31,8 @@ model Release {
   type        ReleaseType
   releaseDate DateTime?
   label       String?
-  coverImage  String?
+  coverId     String?
+  cover       MediaImage? @relation(fields: [coverId], references: [id], onDelete: SetNull)
   sourceUrl   String?
   isExample   Boolean     @default(false)
   createdAt   DateTime    @default(now())
@@ -191,4 +192,18 @@ model PageView {
 
   @@index([at])
   @@index([path, at])
+}
+
+// Uploaded images. Resized on upload, stored in Postgres. Served from /media/<id>.
+model MediaImage {
+  id        String   @id @default(cuid())
+  filename  String
+  mime      String
+  width     Int
+  height    Int
+  bytes     Int
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  releases Release[]
 }

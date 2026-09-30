@@ -60,3 +60,21 @@ describe("voice check", () => {
     expect(voiceCheck("Loud, sloppy and mostly in tune.").filter((f) => f.kind !== "three")).toEqual([]);
   });
 });
+
+import { normDate, readReleases } from "@/lib/csv";
+
+describe("csv import", () => {
+  it("reads rows, quotes and Australian dates", () => {
+    const rows = readReleases('artist,title,type,date,label\n"Band, The","Say ""Hi""",album,16/10/2026,Lbl\nB,C,Single,2026-01-02,\n');
+    expect(rows[0]).toMatchObject({ artist: "Band, The", title: 'Say "Hi"', type: "ALBUM", date: "2026-10-16", label: "Lbl" });
+    expect(rows[1]).toMatchObject({ type: "SINGLE", date: "2026-01-02" });
+  });
+  it("flags bad rows without stopping", () => {
+    const rows = readReleases("A,B,podcast,2026-01-01\nA,B,ep,31/02/2026\n,X,ep,");
+    expect(rows.map((r) => !!r.error)).toEqual([true, true, true]);
+  });
+  it("rejects impossible dates", () => {
+    expect(normDate("31/02/2026")).toBeNull();
+    expect(normDate("")).toBe("");
+  });
+});

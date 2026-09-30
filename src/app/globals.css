@@ -173,3 +173,17 @@ footer { margin-top: 64px; border-top: 4px solid var(--line); padding-top: 14px;
 .pill.live { border-color: var(--fg); color: var(--fg); background: var(--accent); }
 .saved { background: var(--accent); color: var(--on-accent); padding: 8px 12px; font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 16px; }
 .narrow-form { max-width: 560px; }
+
+/* media */
+.drop { border: 2px dashed var(--line); padding: 28px; text-align: center; font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; margin-bottom: 8px; }
+.drop.over, .drop:focus-visible { background: var(--accent); color: var(--on-accent); }
+.media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; margin-top: 20px; }
+.media-item { margin: 0; border: 2px solid var(--line); }
+.media-item img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--soft); }
+.media-item figcaption { padding: 8px 10px; display: grid; gap: 4px; font-size: 0.85rem; }
+.media-item b { overflow-wrap: anywhere; }
+.thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.thumb { width: 64px; height: 64px; padding: 0; border: 2px solid var(--soft); background: var(--bg); cursor: pointer; font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb.sel { border-color: var(--fg); outline: 3px solid var(--accent); }
+.cover { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--soft); margin-bottom: 12px; border: 2px solid var(--line); }

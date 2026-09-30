@@ -6,6 +6,7 @@ export default async function EditPress({ params, searchParams }: { params: Prom
   const { id } = await params;
   const p = await db.pressRelease.findUnique({ where: { id }, include: { release: true } });
   if (!p) notFound();
+  const media = await db.mediaImage.findMany({ orderBy: { createdAt: "desc" }, select: { id: true, filename: true } });
   const r = p.release;
   return (
     <section className="sec">
@@ -13,9 +14,9 @@ export default async function EditPress({ params, searchParams }: { params: Prom
       {(await searchParams).saved && <p className="saved">Saved.</p>}
       <PressEditor init={{
         id: p.id, status: p.status, releaseId: r.id, artist: r.artist, title: r.title, type: r.type,
-        releaseDate: r.releaseDate?.toISOString().slice(0, 10) ?? "", label: r.label ?? "", sourceUrl: r.sourceUrl ?? "",
+        releaseDate: r.releaseDate?.toISOString().slice(0, 10) ?? "", label: r.label ?? "", sourceUrl: r.sourceUrl ?? "", coverId: r.coverId ?? "",
         body: p.body, receivedFrom: p.receivedFrom ?? "", receivedAt: p.receivedAt?.toISOString().slice(0, 10) ?? "",
-      }} />
+      }} media={media} />
     </section>
   );
 }

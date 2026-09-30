@@ -31,6 +31,7 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
   const rel = {
     artist, title, type: type as ReleaseType, releaseDate: dateOnly(str(f, "releaseDate")),
     label: str(f, "label").trim() || null, sourceUrl: str(f, "sourceUrl").trim() || null,
+    coverId: str(f, "coverId") || null,
   };
   const extra = { body, receivedFrom: str(f, "receivedFrom").trim() || null, receivedAt: dateOnly(str(f, "receivedAt")), ...st };
   let pid = id;

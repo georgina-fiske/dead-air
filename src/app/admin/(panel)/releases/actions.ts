@@ -27,6 +27,7 @@ export async function saveRelease(_: FormState | undefined, f: FormData): Promis
     releaseDate: dateOnly(str(f, "releaseDate")),
     label: str(f, "label").trim() || null,
     sourceUrl: str(f, "sourceUrl").trim() || null,
+    coverId: str(f, "coverId") || null,
   };
   let rid = id;
   if (id) {
