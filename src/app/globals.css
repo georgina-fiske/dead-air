@@ -1,0 +1,51 @@
+/* Design tokens. Georgina's palette and fonts live here. Change these, not the components. */
+:root {
+  --bg: #f8edeb; /* Blush Cream */
+  --fg: #121212;
+  --muted: #625f59;
+  --line: #121212;
+  --soft: #eadad6;
+  --accent: #ffd166; /* Butter Yellow */
+  --accent-2: #cdb4db; /* Lavender Haze */
+  --on-accent: #121212;
+  --font-display: "Thunder", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-script: "Aaleyah", cursive;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f0f0e; --fg: #f8edeb; --muted: #a09c93; --line: #f8edeb; --soft: #1e1d1b;
+    --accent: #ffd166; --accent-2: #cdb4db; --on-accent: #121212; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f0f0e; --fg: #f8edeb; --muted: #a09c93; --line: #f8edeb; --soft: #1e1d1b;
+  --accent: #ffd166; --accent-2: #cdb4db; --on-accent: #121212; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding-inline: 16px;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+}
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
+.wrap { max-width: 1040px; margin-inline: auto; padding-block: 20px 48px; }
+.masthead { border-bottom: 4px solid var(--line); padding-bottom: 14px; }
+.wordmark {
+  display: block; text-decoration: none;
+  font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+  font-size: clamp(3.2rem, 15vw, 9.5rem); line-height: 0.82; letter-spacing: -0.05em;
+  margin: 0 0 14px -0.04em;
+}
+.wordmark span { background: var(--accent); color: var(--on-accent); padding-inline: 0.06em; }
+.tag-line { font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 18px; }
+.nav { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.nav a {
+  font-family: var(--font-mono); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em;
+  text-decoration: none; padding-block: 4px 3px; border-bottom: 3px solid transparent;
+}
+.nav a:hover { border-bottom-color: var(--fg); }
+.empty { font-family: var(--font-mono); color: var(--muted); padding-block: 24px; }
+footer { margin-top: 64px; border-top: 4px solid var(--line); padding-top: 14px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
