@@ -49,3 +49,37 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--fg); outline-of
 .nav a:hover { border-bottom-color: var(--fg); }
 .empty { font-family: var(--font-mono); color: var(--muted); padding-block: 24px; }
 footer { margin-top: 64px; border-top: 4px solid var(--line); padding-top: 14px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+
+/* shared */
+.sec { margin-top: 44px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; border-bottom: 2px solid var(--line); padding-bottom: 6px; margin-bottom: 16px; }
+.sec-head h2, .h1 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: clamp(1.6rem, 5vw, 2.4rem); letter-spacing: -0.03em; line-height: 1; margin: 0; }
+.h1 { margin-bottom: 16px; }
+.note { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); margin: -6px 0 18px; }
+.mono { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+
+/* admin */
+.narrow { max-width: 420px; margin-inline: auto; padding-top: 8vh; }
+.form { display: grid; gap: 14px; }
+.form label { display: grid; gap: 4px; }
+.form label span { font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.form input { font: inherit; padding: 10px 12px; border: 2px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 0; }
+.form button, .who button {
+  font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em;
+  background: var(--fg); color: var(--bg); border: 2px solid var(--line); padding: 10px 16px; cursor: pointer;
+}
+.form button:disabled { opacity: 0.6; cursor: wait; }
+.err { margin: 0; padding: 8px 12px; background: var(--accent-2); color: var(--on-accent); font-family: var(--font-mono); font-size: 0.85rem; }
+.admin-head { display: grid; gap: 14px; }
+.admin-mark { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: 2.2rem; letter-spacing: -0.04em; text-decoration: none; line-height: 1; }
+.admin-mark span { background: var(--accent); color: var(--on-accent); padding-inline: 0.06em; }
+.admin-mark small { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; color: var(--muted); font-weight: 400; margin-left: 6px; }
+.who { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+.who button { padding: 4px 10px; background: transparent; color: var(--fg); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.stat { border: 2px solid var(--line); padding: 14px; }
+.stat-n { font-family: var(--font-display); font-weight: 900; font-size: 3rem; line-height: 0.9; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.stat-l { font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 6px; }
+.stat-s { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.log { list-style: none; padding: 0; margin: 0; }
+.log li { padding-block: 8px; border-bottom: 1px solid var(--soft); }

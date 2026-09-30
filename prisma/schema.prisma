@@ -1,0 +1,194 @@
+// Dead Air data model. Faceless: no author fields anywhere.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Status {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+}
+
+enum ReleaseType {
+  SINGLE
+  EP
+  ALBUM
+  LIVE_ALBUM
+}
+
+// Used by Incoming and Rated.
+model Release {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  artist      String
+  title       String
+  type        ReleaseType
+  releaseDate DateTime?
+  label       String?
+  coverImage  String?
+  sourceUrl   String?
+  isExample   Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  pressRelease PressRelease?
+  review       Review?
+
+  @@index([artist])
+}
+
+// Body is stored exactly as received. Never edited.
+model PressRelease {
+  id           String    @id @default(cuid())
+  slug         String    @unique
+  releaseId    String    @unique
+  release      Release   @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  body         String
+  receivedFrom String?
+  receivedAt   DateTime?
+  status       Status    @default(DRAFT)
+  publishedAt  DateTime?
+  isExample    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+model Interview {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  artist      String
+  subtitle    String?
+  date        DateTime?
+  status      Status    @default(DRAFT)
+  publishedAt DateTime?
+  isExample   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  qa InterviewQA[]
+
+  @@index([status, publishedAt])
+}
+
+// Answers are stored and shown verbatim. Never trimmed, corrected or reworded.
+model InterviewQA {
+  id          String    @id @default(cuid())
+  interviewId String
+  interview   Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  position    Int
+  question    String
+  answer      String
+
+  @@unique([interviewId, position])
+}
+
+// Rubric (draft 3): Bias 25, Craft 30, Nerve 15, Crowd 15, Replay 15 = 100.
+// total is computed by the server from the five scores. It is never typed.
+// Replay can be filled in days later, so a draft may have replay = null.
+model Review {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  releaseId     String    @unique
+  release       Release   @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  rubricVersion Int       @default(1)
+  take          String
+  biasLine      String    @default("")
+  craftLine     String    @default("")
+  nerveLine     String    @default("")
+  crowdLine     String    @default("")
+  replayLine    String    @default("")
+  bias          Int?
+  craft         Int?
+  nerve         Int?
+  crowd         Int?
+  replay        Int?
+  total         Int?
+  isFan         Boolean   @default(false)
+  listenedAt    DateTime?
+  status        Status    @default(DRAFT)
+  publishedAt   DateTime?
+  isExample     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([rubricVersion, total])
+}
+
+model Opinion {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  body        String
+  status      Status    @default(DRAFT)
+  publishedAt DateTime?
+  isExample   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+model AdminUser {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  passwordHash       String
+  role               String    @default("admin")
+  mustChangePassword Boolean   @default(true)
+  failedLogins       Int       @default(0)
+  lockedUntil        DateTime?
+  lastLoginAt        DateTime?
+  createdAt          DateTime  @default(now())
+
+  sessions AdminSession[]
+  audit    AuditLog[]
+}
+
+// Only a hash of the session token is stored.
+model AdminSession {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id         String     @id @default(cuid())
+  at         DateTime   @default(now())
+  userId     String?
+  user       AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String?
+  entityId   String?
+  detail     String?
+
+  @@index([at])
+}
+
+// No personal data. No raw IPs. sessionHash uses a daily rotating salt.
+model PageView {
+  id          String   @id @default(cuid())
+  at          DateTime @default(now())
+  path        String
+  contentType String?
+  contentId   String?
+  referrer    String?
+  country     String?
+  device      String?
+  sessionHash String
+
+  @@index([at])
+  @@index([path, at])
+}
