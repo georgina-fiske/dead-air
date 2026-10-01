@@ -11,7 +11,7 @@ export default async function NewPress({ searchParams }: { searchParams: Promise
       <PressEditor init={{
         releaseId: r?.id ?? "", artist: r?.artist ?? "", title: r?.title ?? "", type: r?.type ?? "SINGLE",
         releaseDate: r?.releaseDate?.toISOString().slice(0, 10) ?? "", label: r?.label ?? "", sourceUrl: r?.sourceUrl ?? "", coverId: r?.coverId ?? "",
-        body: "", receivedFrom: "", receivedAt: "",
+        headline: "", bodyHtml: "", receivedFrom: "", receivedAt: "",
       }} media={media} />
     </section>
   );

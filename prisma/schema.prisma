@@ -50,7 +50,10 @@ model PressRelease {
   slug         String    @unique
   releaseId    String    @unique
   release      Release   @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  headline     String?
+  // body is the plain text of the release. bodyHtml is the same words with links and formatting kept (cleaned for safety).
   body         String
+  bodyHtml     String?
   receivedFrom String?
   receivedAt   DateTime?
   status       Status    @default(DRAFT)

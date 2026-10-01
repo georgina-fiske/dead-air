@@ -1,20 +1,23 @@
 "use client";
 import { useActionState, useState } from "react";
 import { Field, StatusBar } from "@/components/admin";
+import { RichEditor } from "@/components/RichEditor";
 import { CoverPicker, type MediaOpt } from "@/components/CoverPicker";
 import { TYPE_LABEL, fmtDate } from "@/lib/format";
 import { savePress } from "./actions";
 
 export type PressInit = {
   id?: string; status?: string; releaseId: string; artist: string; title: string; type: string; releaseDate: string;
-  label: string; sourceUrl: string; coverId: string; body: string; receivedFrom: string; receivedAt: string;
+  label: string; sourceUrl: string; coverId: string; headline: string; bodyHtml: string; receivedFrom: string; receivedAt: string;
 };
 
 export function PressEditor({ init, media }: { init: PressInit; media: MediaOpt[] }) {
   const [state, action, pending] = useActionState(savePress, undefined);
   const [v, setV] = useState(init);
+  const [html, setHtml] = useState(init.bodyHtml);
+  const hasBody = html.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim() !== "" || /<img\b/i.test(html);
   const set = (k: keyof PressInit) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setV({ ...v, [k]: e.target.value });
-  const blocked = !v.artist.trim() || !v.title.trim() ? "Artist and title are needed." : !v.body.trim() ? "Paste the press release first." : null;
+  const blocked = !v.artist.trim() || !v.title.trim() ? "Artist and title are needed." : !hasBody ? "Paste the press release first." : null;
   return (
     <form action={action} className="editor">
       <div>
@@ -42,16 +45,20 @@ export function PressEditor({ init, media }: { init: PressInit; media: MediaOpt[
           <Field label="Received on"><input type="date" name="receivedAt" value={v.receivedAt} onChange={set("receivedAt")} /></Field>
         </div>
         <CoverPicker media={media} value={init.coverId} />
-        <Field label="Press release" hint="paste exactly as sent"><textarea name="body" value={v.body} onChange={set("body")} style={{ minHeight: "16rem" }} spellCheck={false} /></Field>
-        <span className="verbatim">Verbatim</span> <span className="mono">Stored exactly as pasted. Never rewritten. Never checked for voice.</span>
+        <Field label="Headline" hint="the press release's own headline"><input name="headline" value={v.headline} onChange={set("headline")} maxLength={200} /></Field>
+        <div className="fld">
+          <span>Press release <em>copy it from the web page or email and paste it in. Links, bold and pictures stay.</em></span>
+          <RichEditor name="bodyHtml" initialHtml={init.bodyHtml} onChange={setHtml} />
+        </div>
+        <span className="verbatim">Verbatim</span> <span className="mono">The words are never changed or checked for voice. Pictures are copied into Media when you save.</span>
         <StatusBar id={init.id} status={init.status} pending={pending} blocked={blocked} error={state?.error} />
       </div>
       <div className="preview">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {init.coverId && <img className="cover" style={{ maxWidth: 240 }} src={`/media/${init.coverId}`} alt="" />}
-        <h1 className="h1">{v.artist || "Artist"} {"–"} {v.title || "Title"}</h1>
-        <p className="sub">{[TYPE_LABEL[v.type], v.label, fmtDate(v.releaseDate)].filter(Boolean).join(" · ")}</p>
-        <div className="release-body">{v.body}</div>
+        <p className="kicker">{[`${v.artist || "Artist"} – ${v.title || "Title"}`, TYPE_LABEL[v.type], v.label, fmtDate(v.releaseDate)].filter(Boolean).join(" · ")}</p>
+        <h1 className="headline">{v.headline || `${v.artist || "Artist"} – ${v.title || "Title"}`}</h1>
+        <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
       </div>
     </form>
   );

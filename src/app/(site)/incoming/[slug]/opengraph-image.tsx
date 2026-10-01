@@ -9,5 +9,7 @@ export const contentType = OG_TYPE;
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const p = await incomingOne((await params).slug);
   if (!p) return defaultCard();
-  return textCard({ kicker: "Incoming", title: `${p.release.artist} – ${p.release.title}`, sub: [TYPE_LABEL[p.release.type], p.release.label].filter(Boolean).join(" · ") });
+  const name = `${p.release.artist} – ${p.release.title}`;
+  const meta = [TYPE_LABEL[p.release.type], p.release.label].filter(Boolean).join(" · ");
+  return textCard({ kicker: "Incoming", title: p.headline || name, sub: p.headline ? `${name} · ${meta}` : meta });
 }

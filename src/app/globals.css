@@ -220,3 +220,24 @@ details summary { cursor: pointer; padding-block: 8px; }
 .rated.compact .lab b { display: inline; }
 .rated.compact .ct { font-size: 1.15rem; }
 .rated.compact .take { font-size: 1rem; }
+
+/* press release body and editor */
+.prose { max-width: 62ch; overflow-wrap: anywhere; }
+.prose > :first-child { margin-top: 0; }
+.prose p { margin: 0 0 1em; }
+.prose h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; line-height: 1.15; letter-spacing: -0.02em; margin: 1.4em 0 0.5em; }
+.prose h3 { font-weight: 800; font-size: 1.2rem; margin: 1.2em 0 0.4em; }
+.prose h4 { font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 1.2em 0 0.4em; }
+.prose a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; text-decoration-color: var(--accent); }
+.prose a:hover { background: var(--accent); color: var(--on-accent); }
+.prose ul, .prose ol { margin: 0 0 1em; padding-left: 1.3em; }
+.prose blockquote { margin: 1.2em 0; padding-left: 16px; border-left: 4px solid var(--accent); font-weight: 600; }
+.prose hr { border: 0; border-top: 2px solid var(--line); margin: 1.6em 0; }
+.prose img { display: block; max-width: 100%; height: auto; margin: 1.2em 0; border: 2px solid var(--line); }
+.kicker { font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 8px; }
+.headline { font-family: var(--font-display); font-weight: 900; font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1.02; letter-spacing: -0.03em; margin: 0 0 16px; text-wrap: balance; }
+.rte { border: 2px solid var(--line); }
+.rte-bar { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; border-bottom: 2px solid var(--line); background: var(--soft); }
+.rte-bar button { font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; background: var(--bg); color: var(--fg); border: 2px solid var(--line); padding: 4px 9px; cursor: pointer; }
+.rte-body { min-height: 18rem; max-width: none; padding: 12px 14px; background: var(--bg); outline: none; }
+.rte-body:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }

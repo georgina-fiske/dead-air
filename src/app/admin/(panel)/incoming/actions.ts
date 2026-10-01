@@ -3,8 +3,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { audit, requireAdmin } from "@/lib/adminAuth";
 import { db } from "@/lib/db";
-import { dateOnly, rawText, resolveStatus, str, wantsLive, type FormState } from "@/lib/adminContent";
+import { dateOnly, resolveStatus, str, wantsLive, type FormState } from "@/lib/adminContent";
 import { uniqueSlug } from "@/lib/slug";
+import { htmlToText, sanitizeBody } from "@/lib/richText";
+import { importImages } from "@/lib/pressImages";
 import type { ReleaseType } from "@/generated/prisma/enums";
 
 export async function savePress(_: FormState | undefined, f: FormData): Promise<FormState> {
@@ -18,11 +20,15 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
     redirect("/admin/incoming");
   }
   const artist = str(f, "artist").trim(), title = str(f, "title").trim(), type = str(f, "type");
-  // Stored exactly as pasted. Only line breaks are made consistent.
-  const body = rawText(f, "body");
+  // The words are kept exactly. Only unsafe markup is removed. Pictures are copied into Media.
+  const cleaned = sanitizeBody(str(f, "bodyHtml"));
+  const imported = await importImages(cleaned);
+  const bodyHtml = imported.html;
+  const body = htmlToText(bodyHtml);
+  const hasPicture = /<img\b/i.test(bodyHtml);
   if (!artist || !title) return { error: "Artist and title are needed." };
   if (!["SINGLE", "EP", "ALBUM", "LIVE_ALBUM"].includes(type)) return { error: "Pick a type." };
-  if (wantsLive(intent) && !body.trim()) return { error: "Paste the press release first." };
+  if (wantsLive(intent) && !body.trim() && !hasPicture) return { error: "Paste the press release first." };
 
   const prev = id ? await db.pressRelease.findUnique({ where: { id } }) : null;
   const st = resolveStatus(intent, str(f, "scheduledAt"), prev);
@@ -33,7 +39,7 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
     label: str(f, "label").trim() || null, sourceUrl: str(f, "sourceUrl").trim() || null,
     coverId: str(f, "coverId") || null,
   };
-  const extra = { body, receivedFrom: str(f, "receivedFrom").trim() || null, receivedAt: dateOnly(str(f, "receivedAt")), ...st };
+  const extra = { headline: str(f, "headline").trim().slice(0, 200) || null, body, bodyHtml, receivedFrom: str(f, "receivedFrom").trim() || null, receivedAt: dateOnly(str(f, "receivedAt")), ...st };
   let pid = id;
   if (prev) {
     await db.release.update({ where: { id: prev.releaseId }, data: rel });
@@ -52,5 +58,5 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
   }
   await audit(u.id, `incoming.${intent}`, "PressRelease", pid);
   revalidatePath("/", "layout");
-  redirect(`/admin/incoming/${pid}?saved=1`);
+  redirect(`/admin/incoming/${pid}?saved=1&copied=${imported.copied}&failed=${imported.failed}`);
 }
