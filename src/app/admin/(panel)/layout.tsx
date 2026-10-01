@@ -12,6 +12,7 @@ export const NAV = [
   { href: "/admin/hot-air", label: "Hot Air" },
   { href: "/admin/releases", label: "Releases" },
   { href: "/admin/media", label: "Media" },
+  { href: "/admin/icons", label: "Icons" },
   { href: "/admin/analytics", label: "Analytics" },
 ];
 

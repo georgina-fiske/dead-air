@@ -3,12 +3,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { audit, requireAdmin } from "@/lib/adminAuth";
 import { db } from "@/lib/db";
-import { dateOnly, resolveStatus, str, wantsLive, type FormState } from "@/lib/adminContent";
+import { dateOnly, rawText, resolveStatus, str, wantsLive, type FormState } from "@/lib/adminContent";
 import { uniqueSlug } from "@/lib/slug";
-import { htmlToText, sanitizeBody } from "@/lib/richText";
-import { importImages } from "@/lib/pressImages";
+import { safeUrl, stripMarkup } from "@/lib/pressText";
 import type { ReleaseType } from "@/generated/prisma/enums";
 
+// Text is stored exactly as entered (only line breaks are made consistent).
 export async function savePress(_: FormState | undefined, f: FormData): Promise<FormState> {
   const u = await requireAdmin();
   const id = str(f, "id");
@@ -20,15 +20,35 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
     redirect("/admin/incoming");
   }
   const artist = str(f, "artist").trim(), title = str(f, "title").trim(), type = str(f, "type");
-  // The words are kept exactly. Only unsafe markup is removed. Pictures are copied into Media.
-  const cleaned = sanitizeBody(str(f, "bodyHtml"));
-  const imported = await importImages(cleaned);
-  const bodyHtml = imported.html;
-  const body = htmlToText(bodyHtml);
-  const hasPicture = /<img\b/i.test(bodyHtml);
-  if (!artist || !title) return { error: "Artist and title are needed." };
+  if (!artist || !title) return { error: "Artist and release title are needed." };
   if (!["SINGLE", "EP", "ALBUM", "LIVE_ALBUM"].includes(type)) return { error: "Pick a type." };
-  if (wantsLive(intent) && !body.trim() && !hasPicture) return { error: "Paste the press release first." };
+
+  const spotlight = rawText(f, "spotlight"), story1 = rawText(f, "story1"), story2 = rawText(f, "story2");
+
+  // photos: must exist in the Media library
+  const photo = async (n: 1 | 2) => {
+    const pid = str(f, `photo${n}Id`);
+    const ok = pid ? !!(await db.mediaImage.findUnique({ where: { id: pid }, select: { id: true } })) : false;
+    return { id: ok ? pid : null, credit: str(f, `photo${n}Credit`).trim() || null, alt: str(f, `photo${n}Alt`).trim() || null };
+  };
+  const p1 = await photo(1), p2 = await photo(2);
+
+  // link buttons: kept as entered, even half-finished in a draft
+  const labels = f.getAll("linkLabel").map(String), urls = f.getAll("linkUrl").map(String), icons = f.getAll("linkIcon").map(String);
+  const links = labels.map((label, i) => ({ label: label.trim(), url: (urls[i] ?? "").trim(), iconId: icons[i] ?? "" }))
+    .filter((l) => l.label || l.url).slice(0, 12);
+  const iconIds = new Set((await db.pressIcon.findMany({ select: { id: true } })).map((x) => x.id));
+  for (const l of links) if (!iconIds.has(l.iconId)) l.iconId = "";
+
+  const qs = f.getAll("triviaQ").map((x) => String(x).replace(/\r\n/g, "\n")), as = f.getAll("triviaA").map((x) => String(x).replace(/\r\n/g, "\n"));
+  const trivia = qs.map((question, i) => ({ question, answer: as[i] ?? "" })).filter((t) => t.question.trim() || t.answer.trim()).slice(0, 3);
+
+  if (wantsLive(intent)) {
+    if (![spotlight, story1, story2].some((t) => t.trim())) return { error: "Write the spotlight or the story first." };
+    if ((p1.id && !p1.alt) || (p2.id && !p2.alt)) return { error: "Every photo needs alt text." };
+    if (links.some((l) => !l.label || !safeUrl(l.url))) return { error: "Each link button needs text and an http or https address." };
+    if (trivia.some((t) => !t.question.trim() || !t.answer.trim())) return { error: "Each trivia question needs an answer." };
+  }
 
   const prev = id ? await db.pressRelease.findUnique({ where: { id } }) : null;
   const st = resolveStatus(intent, str(f, "scheduledAt"), prev);
@@ -36,10 +56,17 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
 
   const rel = {
     artist, title, type: type as ReleaseType, releaseDate: dateOnly(str(f, "releaseDate")),
-    label: str(f, "label").trim() || null, sourceUrl: str(f, "sourceUrl").trim() || null,
-    coverId: str(f, "coverId") || null,
+    label: str(f, "label").trim() || null, sourceUrl: str(f, "sourceUrl").trim() || null, coverId: str(f, "coverId") || null,
   };
-  const extra = { headline: str(f, "headline").trim().slice(0, 200) || null, body, bodyHtml, receivedFrom: str(f, "receivedFrom").trim() || null, receivedAt: dateOnly(str(f, "receivedAt")), ...st };
+  const body = stripMarkup([spotlight, story1, story2].filter((t) => t.trim()).join("\n\n"));
+  const extra = {
+    headline: str(f, "headline").trim().slice(0, 200) || null,
+    structured: true,
+    photo1Id: p1.id, photo1Credit: p1.credit, photo1Alt: p1.alt, spotlight, links, story1,
+    photo2Id: p2.id, photo2Credit: p2.credit, photo2Alt: p2.alt, story2, trivia,
+    body, bodyHtml: null,
+    receivedFrom: str(f, "receivedFrom").trim() || null, receivedAt: dateOnly(str(f, "receivedAt")), ...st,
+  };
   let pid = id;
   if (prev) {
     await db.release.update({ where: { id: prev.releaseId }, data: rel });
@@ -58,5 +85,5 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
   }
   await audit(u.id, `incoming.${intent}`, "PressRelease", pid);
   revalidatePath("/", "layout");
-  redirect(`/admin/incoming/${pid}?saved=1&copied=${imported.copied}&failed=${imported.failed}`);
+  redirect(`/admin/incoming/${pid}?saved=1`);
 }

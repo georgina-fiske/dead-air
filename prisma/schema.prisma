@@ -46,21 +46,37 @@ model Release {
 
 // Body is stored exactly as received. Never edited.
 model PressRelease {
-  id           String    @id @default(cuid())
-  slug         String    @unique
-  releaseId    String    @unique
-  release      Release   @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  id           String      @id @default(cuid())
+  slug         String      @unique
+  releaseId    String      @unique
+  release      Release     @relation(fields: [releaseId], references: [id], onDelete: Cascade)
   headline     String?
+  // New press release layout. structured = true means the page is built from the fields below.
+  // All text is stored exactly as entered, with small markers: [words](https://link), "## " subheading, ">> " centred.
+  structured   Boolean     @default(false)
+  photo1Id     String?
+  photo1       MediaImage? @relation("PressPhoto1", fields: [photo1Id], references: [id], onDelete: SetNull)
+  photo1Credit String?
+  photo1Alt    String?
+  spotlight    String?
+  links        Json? // [{ label, url, iconId }]
+  story1       String?
+  photo2Id     String?
+  photo2       MediaImage? @relation("PressPhoto2", fields: [photo2Id], references: [id], onDelete: SetNull)
+  photo2Credit String?
+  photo2Alt    String?
+  story2       String?
+  trivia       Json? // [{ question, answer }] up to 3
   // body is the plain text of the release. bodyHtml is the same words with links and formatting kept (cleaned for safety).
   body         String
   bodyHtml     String?
   receivedFrom String?
   receivedAt   DateTime?
-  status       Status    @default(DRAFT)
+  status       Status      @default(DRAFT)
   publishedAt  DateTime?
-  isExample    Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  isExample    Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@index([status, publishedAt])
 }
@@ -214,5 +230,15 @@ model MediaImage {
   data      Bytes
   createdAt DateTime @default(now())
 
-  releases Release[]
+  releases     Release[]
+  pressPhotos1 PressRelease[] @relation("PressPhoto1")
+  pressPhotos2 PressRelease[] @relation("PressPhoto2")
+}
+
+// Icons for press release link buttons. Uploaded once, picked from a menu. Stored as PNG with transparency.
+model PressIcon {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  data      Bytes
+  createdAt DateTime @default(now())
 }
