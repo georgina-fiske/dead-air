@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { PressEditor } from "../PressEditor";
+import { markupToHtml } from "@/lib/pressText";
+import { textToHtml } from "@/lib/richText";
 
 export default async function EditPress({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> }) {
   const { id } = await params;
@@ -24,11 +26,11 @@ export default async function EditPress({ params, searchParams }: { params: Prom
         receivedFrom: p.receivedFrom ?? "", receivedAt: p.receivedAt?.toISOString().slice(0, 10) ?? "",
         headline: p.headline ?? "", legacy: !p.structured,
         photo1: { id: p.photo1Id ?? "", credit: p.photo1Credit ?? "", alt: p.photo1Alt ?? "" },
-        spotlight: p.spotlight ?? "",
+        spotlight: p.rich ? (p.spotlight ?? "") : markupToHtml(p.spotlight ?? ""),
         links: rawLinks.map((l) => ({ label: l.label ?? "", url: l.url ?? "", iconId: l.iconId ?? "" })),
-        story1: p.structured ? (p.story1 ?? "") : p.body,
+        story1: p.rich ? (p.story1 ?? "") : p.structured ? markupToHtml(p.story1 ?? "") : (p.bodyHtml ?? textToHtml(p.body)),
         photo2: { id: p.photo2Id ?? "", credit: p.photo2Credit ?? "", alt: p.photo2Alt ?? "" },
-        story2: p.story2 ?? "",
+        story2: p.rich ? (p.story2 ?? "") : markupToHtml(p.story2 ?? ""),
         trivia: rawTrivia.map((t) => ({ question: t.question ?? "", answer: t.answer ?? "" })).slice(0, 3),
       }} />
     </section>

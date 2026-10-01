@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = await incomingOne((await params).slug);
   if (!p) return { title: "That page is gone." };
   const title = p.headline || `${p.release.artist} – ${p.release.title}`;
-  const plain = p.structured ? stripMarkup(p.spotlight || p.story1 || p.story2 || "") : htmlToText(p.bodyHtml ?? textToHtml(p.body));
+  const plain = p.structured ? (p.rich ? htmlToText(p.spotlight || p.story1 || p.story2 || "") : stripMarkup(p.spotlight || p.story1 || p.story2 || "")) : htmlToText(p.bodyHtml ?? textToHtml(p.body));
   const description = plain.replace(/\s+/g, " ").slice(0, 160) || `Press release from ${p.release.artist}, posted as sent.`;
   return { title, description, alternates: { canonical: `/incoming/${p.slug}` } };
 }
@@ -28,6 +28,8 @@ export default async function IncomingPage({ params }: Props) {
   await track(`/incoming/${p.slug}`, { contentType: "incoming", contentId: p.id });
   const r = p.release;
   if (p.structured) {
+    const rich = p.rich;
+    const text = (t: string | null) => (rich ? sanitizeBody(t ?? "") : (t ?? ""));
     const links = normalizeLinks(p.links);
     const icons = links.some((l) => l.iconId) ? await db.pressIcon.findMany({ where: { id: { in: links.map((l) => l.iconId).filter(Boolean) } }, select: { id: true } }) : [];
     const have = new Set(icons.map((i) => i.id));
@@ -37,9 +39,9 @@ export default async function IncomingPage({ params }: Props) {
         <p><Link className="back" href="/incoming">Incoming</Link>{p.isExample && <Example />}</p>
         <PressView
           headline={p.headline ?? ""} artist={r.artist} title={r.title} type={r.type} releaseDate={r.releaseDate} label={r.label ?? ""}
-          photo1={photo(p.photo1Id, p.photo1Credit, p.photo1Alt)} spotlight={p.spotlight ?? ""}
+          photo1={photo(p.photo1Id, p.photo1Credit, p.photo1Alt)} spotlight={text(p.spotlight)} rich={rich}
           links={links.map((l) => ({ ...l, iconSrc: l.iconId && have.has(l.iconId) ? `/icons/${l.iconId}` : undefined }))}
-          story1={p.story1 ?? ""} photo2={photo(p.photo2Id, p.photo2Credit, p.photo2Alt)} story2={p.story2 ?? ""} trivia={normalizeTrivia(p.trivia)}
+          story1={text(p.story1)} photo2={photo(p.photo2Id, p.photo2Credit, p.photo2Alt)} story2={text(p.story2)} trivia={normalizeTrivia(p.trivia)}
         />
       </section>
     );

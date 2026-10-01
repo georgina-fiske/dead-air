@@ -87,3 +87,13 @@ export function normalizeTrivia(input: unknown): TriviaItem[] {
   }
   return out.slice(0, 3);
 }
+
+// Turns the older text markers into HTML, so an older press release can be edited in the formatting editor.
+export function markupToHtml(text: string): string {
+  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return parseBlocks(text).map((b) => {
+    const inner = b.lines.map((line) => line.map((x) => (x.link ? `<a href="${esc(x.url)}">${esc(x.text)}</a>` : esc(x.text))).join("")).join("<br>");
+    const tag = b.kind === "h" ? "h2" : "p";
+    return `<${tag}${b.centre ? ' class="ctr"' : ""}>${inner}</${tag}>`;
+  }).join("");
+}

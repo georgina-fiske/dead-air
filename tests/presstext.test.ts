@@ -42,3 +42,13 @@ describe("press release text", () => {
     expect(t).toHaveLength(3);
   });
 });
+
+import { markupToHtml } from "@/lib/pressText";
+describe("older text markers become html", () => {
+  it("keeps links, subheadings and centred paragraphs", () => {
+    const html = markupToHtml("## Head\n\n>> Mid [link](https://a.com) <b>\n\nPlain");
+    expect(html).toContain("<h2>Head</h2>");
+    expect(html).toContain('<p class="ctr">Mid <a href="https://a.com">link</a> &lt;b&gt;</p>');
+    expect(html).toContain("<p>Plain</p>");
+  });
+});

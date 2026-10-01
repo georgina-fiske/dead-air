@@ -297,3 +297,13 @@ details summary { cursor: pointer; padding-block: 8px; }
 .linkrow-edit .fld { margin: 0; }
 .mini { font-family: var(--font-mono); font-size: 0.75rem; background: transparent; color: var(--fg); border: 2px solid var(--line); padding: 4px 8px; cursor: pointer; }
 .pe-more summary { cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; padding-block: 8px; }
+
+/* press release rich text (bold, italic, lists, centred lines, subheadings) */
+.press-spot h2, .press-story h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; line-height: 1.15; letter-spacing: -0.02em; margin: 1.5em 0 0.5em; text-align: left; }
+.press-spot h2.ctr, .press-story h2.ctr { text-align: center; }
+.press-spot > :first-child, .press-story > :first-child { margin-top: 0; }
+.press-spot ul, .press-spot ol, .press-story ul, .press-story ol { margin: 0 0 1em; padding-left: 1.3em; text-align: left; }
+.press-spot blockquote, .press-story blockquote { margin: 1.2em 0; padding-left: 16px; border-left: 4px solid var(--accent); font-weight: 600; }
+.press-story img, .press-spot img { display: block; max-width: 100%; height: auto; margin: 1.2em auto; border: 2px solid var(--line); }
+.rte-body p.ctr, .rte-body h2.ctr { text-align: center; }
+.rte-body h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; margin: 0.8em 0 0.4em; }

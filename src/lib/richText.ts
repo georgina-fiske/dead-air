@@ -7,7 +7,8 @@ const styleHas = (style: string | undefined, re: RegExp) => !!style && re.test(s
 export function sanitizeBody(html: string): string {
   const out = sanitizeHtml(html ?? "", {
     allowedTags: ALLOWED_TAGS,
-    allowedAttributes: { a: ["href", "rel", "target"], img: ["src", "alt", "loading"] },
+    allowedAttributes: { a: ["href", "rel", "target"], img: ["src", "alt", "loading"], p: ["class"], h2: ["class"] },
+    allowedClasses: { p: ["ctr"], h2: ["ctr"] },
     allowedSchemes: ["http", "https", "mailto", "tel"],
     allowedSchemesByTag: { img: ["https"] },
     allowedSchemesAppliedToAttributes: ["href", "src"],

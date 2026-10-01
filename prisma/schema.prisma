@@ -54,6 +54,7 @@ model PressRelease {
   // New press release layout. structured = true means the page is built from the fields below.
   // All text is stored exactly as entered, with small markers: [words](https://link), "## " subheading, ">> " centred.
   structured   Boolean     @default(false)
+  rich         Boolean     @default(false) // true: spotlight, story1 and story2 hold cleaned HTML (bold, italic, links, lists...). false: the small text markers.
   photo1Id     String?
   photo1       MediaImage? @relation("PressPhoto1", fields: [photo1Id], references: [id], onDelete: SetNull)
   photo1Credit String?

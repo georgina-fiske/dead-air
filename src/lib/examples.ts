@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 import { RUBRIC_VERSION, computeTotal } from "@/lib/rubric";
 import sharp from "sharp";
 import { saveImage } from "@/lib/media";
-import { stripMarkup } from "@/lib/pressText";
+import { markupToHtml } from "@/lib/pressText";
+import { htmlToText } from "@/lib/richText";
 
 // Invented artists. Every row is flagged isExample so it can be removed in one click.
 const REVIEWS = [
@@ -114,11 +115,11 @@ export async function addExamples() {
       await db.pressRelease.create({
         data: {
           slug: release.slug, releaseId: release.id, receivedFrom: "Example PR", receivedAt: now, status: "PUBLISHED", publishedAt: new Date(now.getTime() - i * day), isExample: true,
-          structured: true, headline: "Artist X announce third album, Third Album, recorded in a shed",
+          structured: true, rich: true, headline: "Artist X announce third album, Third Album, recorded in a shed",
           photo1Id: p1.id, photo1Credit: "Example Photographer", photo1Alt: "Four band members standing in a gravel car park at dusk",
-          spotlight: SPOTLIGHT, links, story1: STORY1,
+          spotlight: markupToHtml(SPOTLIGHT), links, story1: markupToHtml(STORY1),
           photo2Id: p2.id, photo2Credit: "Another Example", photo2Alt: "The band's drummer mid-hit, blurred, in a small wooden shed",
-          story2: STORY2, trivia: TRIVIA, body: stripMarkup([SPOTLIGHT, STORY1, STORY2].join("\n\n")),
+          story2: markupToHtml(STORY2), trivia: TRIVIA, body: htmlToText(markupToHtml([SPOTLIGHT, STORY1, STORY2].join("\n\n"))),
         },
       });
       continue;

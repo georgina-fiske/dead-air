@@ -9,6 +9,8 @@ export type PressData = {
   photo1: PressPhoto | null; spotlight: string;
   links: (LinkButton & { iconSrc?: string })[];
   story1: string; photo2: PressPhoto | null; story2: string; trivia: TriviaItem[];
+  // true: the three text fields hold cleaned HTML. false: they hold the small text markers.
+  rich?: boolean;
 };
 
 function Lines({ lines }: { lines: Inline[][] }) {
@@ -27,7 +29,8 @@ function Lines({ lines }: { lines: Inline[][] }) {
 }
 
 // Text from the editor. Blank line = new paragraph. Subheadings and centred paragraphs are allowed.
-export function Rich({ text, className }: { text: string; className?: string }) {
+export function Rich({ text, className, html }: { text: string; className?: string; html?: boolean }) {
+  if (html) return text.trim() ? <div className={className} dangerouslySetInnerHTML={{ __html: text }} /> : null;
   const blocks = parseBlocks(text);
   if (blocks.length === 0) return null;
   return (
@@ -61,7 +64,7 @@ export function PressView(d: PressData) {
     <article className="press">
       <h1 className="headline">{d.headline.trim() || name}</h1>
       {d.photo1 && <Photo p={d.photo1} fallbackAlt={name} first />}
-      <Rich text={d.spotlight} className="press-spot" />
+      <Rich text={d.spotlight} className="press-spot" html={d.rich} />
       {buttons.length > 0 && (
         <nav aria-label="Links for this release">
           <ul className="linkrow">
@@ -77,14 +80,14 @@ export function PressView(d: PressData) {
           </ul>
         </nav>
       )}
-      <Rich text={d.story1} className="press-story" />
+      <Rich text={d.story1} className="press-story" html={d.rich} />
       {d.photo2 && <Photo p={d.photo2} fallbackAlt={name} />}
       {details.length > 0 && (
         <dl className="pdetails" aria-label="Record details">
           {details.map(([k, v]) => (<div key={k}><dt>{k}</dt><dd>{v}</dd></div>))}
         </dl>
       )}
-      <Rich text={d.story2} className="press-story" />
+      <Rich text={d.story2} className="press-story" html={d.rich} />
       <Trivia items={d.trivia} />
     </article>
   );

@@ -69,3 +69,13 @@ describe("press release images", () => {
     for (const ip of ["8.8.8.8", "203.0.113.5", "2606:4700::1"]) expect(isPublicIp(ip)).toBe(true);
   });
 });
+
+describe("centred paragraphs", () => {
+  it("keeps the centre class on paragraphs and subheadings, and no other class", () => {
+    const out = sanitizeBody('<p class="ctr">Mid</p><h2 class="ctr">Head</h2><p class="evil big">Other</p><div class="ctr">Div</div>');
+    expect(out).toContain('<p class="ctr">Mid</p>');
+    expect(out).toContain('<h2 class="ctr">Head</h2>');
+    expect(out).toContain("<p>Other</p>");
+    expect(out).not.toMatch(/evil|big/);
+  });
+});

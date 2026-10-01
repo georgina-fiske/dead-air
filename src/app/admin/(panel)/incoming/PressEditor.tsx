@@ -2,7 +2,7 @@
 import { useActionState, useState } from "react";
 import { Field, StatusBar } from "@/components/admin";
 import { CoverPicker, type MediaOpt } from "@/components/CoverPicker";
-import { MarkupBox } from "@/components/MarkupBox";
+import { RichEditor } from "@/components/RichEditor";
 import { PhotoField, type PhotoState } from "@/components/PhotoField";
 import { PressView } from "@/components/PressView";
 import { normalizeLinks, normalizeTrivia, safeUrl, type TriviaItem } from "@/lib/pressText";
@@ -35,7 +35,8 @@ export function PressEditor({ init, media, icons }: { init: PressInit; media: Me
   const upd = (key: number, patch: Partial<Row>) => setRows((r) => r.map((x) => (x.key === key ? { ...x, ...patch } : x)));
   const move = (i: number, d: -1 | 1) => setRows((r) => { const j = i + d; if (j < 0 || j >= r.length) return r; const c = [...r]; [c[i], c[j]] = [c[j], c[i]]; return c; });
 
-  const someText = [v.spotlight, v.story1, v.story2].some((t) => t.trim());
+  const hasContent = (h: string) => h.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim() !== "" || /<img\b/i.test(h);
+  const someText = [v.spotlight, v.story1, v.story2].some(hasContent);
   const blocked =
     !v.artist.trim() || !v.title.trim() ? "Artist and release title are needed."
     : !someText ? "Write the spotlight or the story first."
@@ -52,7 +53,7 @@ export function PressEditor({ init, media, icons }: { init: PressInit; media: Me
       <div>
         <input type="hidden" name="id" value={init.id ?? ""} />
         <input type="hidden" name="releaseId" value={init.releaseId} />
-        {init.legacy && <p className="warn">This press release was saved in the old format. Its text is in Story part 1. Save it to move it to the new layout.</p>}
+        {init.legacy && <p className="warn">This press release was saved in an older format. Its text is in Story part 1. Save it to move it to the new layout.</p>}
 
         <fieldset className="pe-set">
           <legend>1. Headline and release</legend>
@@ -77,7 +78,8 @@ export function PressEditor({ init, media, icons }: { init: PressInit; media: Me
 
         <fieldset className="pe-set">
           <legend>2. Spotlight paragraph</legend>
-          <MarkupBox name="spotlight" label="Spotlight" hint="the big opening paragraph" rows={5} value={v.spotlight} onChange={(t) => set("spotlight", t)} />
+          <div className="fld"><span>Spotlight <em>the big opening paragraph. Paste with formatting, or type.</em></span>
+            <RichEditor toolbar="press" name="spotlight" initialHtml={init.spotlight} onChange={(h) => set("spotlight", h)} minHeight="7rem" /></div>
         </fieldset>
 
         <fieldset className="pe-set">
@@ -109,14 +111,16 @@ export function PressEditor({ init, media, icons }: { init: PressInit; media: Me
 
         <fieldset className="pe-set">
           <legend>4. Story part 1</legend>
-          <MarkupBox name="story1" label="Story" hint="a couple of paragraphs" rows={8} value={v.story1} onChange={(t) => set("story1", t)} />
+          <div className="fld"><span>Story <em>a couple of paragraphs</em></span>
+            <RichEditor toolbar="press" name="story1" initialHtml={init.story1} onChange={(h) => set("story1", h)} minHeight="10rem" /></div>
         </fieldset>
 
         <PhotoField n={2} value={v.photo2} onChange={(p) => set("photo2", p)} media={media} />
 
         <fieldset className="pe-set">
           <legend>5. Story part 2</legend>
-          <MarkupBox name="story2" label="The rest of the story" rows={10} value={v.story2} onChange={(t) => set("story2", t)} />
+          <div className="fld"><span>The rest of the story</span>
+            <RichEditor toolbar="press" name="story2" initialHtml={init.story2} onChange={(h) => set("story2", h)} minHeight="12rem" /></div>
         </fieldset>
 
         <fieldset className="pe-set">
@@ -149,7 +153,7 @@ export function PressEditor({ init, media, icons }: { init: PressInit; media: Me
           headline={v.headline} artist={v.artist} title={v.title} type={v.type} releaseDate={v.releaseDate || null} label={v.label}
           photo1={photo(v.photo1)} spotlight={v.spotlight}
           links={normalizeLinks(rows).map((l) => ({ ...l, iconSrc: iconSrc(l.iconId) }))}
-          story1={v.story1} photo2={photo(v.photo2)} story2={v.story2} trivia={normalizeTrivia(trivia)}
+          story1={v.story1} photo2={photo(v.photo2)} story2={v.story2} trivia={normalizeTrivia(trivia)} rich
         />
       </div>
     </form>

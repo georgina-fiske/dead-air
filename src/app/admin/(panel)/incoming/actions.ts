@@ -3,12 +3,14 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { audit, requireAdmin } from "@/lib/adminAuth";
 import { db } from "@/lib/db";
-import { dateOnly, rawText, resolveStatus, str, wantsLive, type FormState } from "@/lib/adminContent";
+import { dateOnly, resolveStatus, str, wantsLive, type FormState } from "@/lib/adminContent";
 import { uniqueSlug } from "@/lib/slug";
-import { safeUrl, stripMarkup } from "@/lib/pressText";
+import { safeUrl } from "@/lib/pressText";
+import { htmlToText, sanitizeBody } from "@/lib/richText";
+import { importImages } from "@/lib/pressImages";
 import type { ReleaseType } from "@/generated/prisma/enums";
 
-// Text is stored exactly as entered (only line breaks are made consistent).
+// The words are stored exactly as entered. Only unsafe code is removed.
 export async function savePress(_: FormState | undefined, f: FormData): Promise<FormState> {
   const u = await requireAdmin();
   const id = str(f, "id");
@@ -23,7 +25,10 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
   if (!artist || !title) return { error: "Artist and release title are needed." };
   if (!["SINGLE", "EP", "ALBUM", "LIVE_ALBUM"].includes(type)) return { error: "Pick a type." };
 
-  const spotlight = rawText(f, "spotlight"), story1 = rawText(f, "story1"), story2 = rawText(f, "story2");
+  // The three text boxes hold formatted text. Unsafe markup is removed. Pasted pictures are copied into Media.
+  const clean = async (k: string) => (await importImages(sanitizeBody(str(f, k)))).html;
+  const spotlight = await clean("spotlight"), story1 = await clean("story1"), story2 = await clean("story2");
+  const has = (h: string) => htmlToText(h).trim() !== "" || /<img\b/i.test(h);
 
   // photos: must exist in the Media library
   const photo = async (n: 1 | 2) => {
@@ -44,7 +49,7 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
   const trivia = qs.map((question, i) => ({ question, answer: as[i] ?? "" })).filter((t) => t.question.trim() || t.answer.trim()).slice(0, 3);
 
   if (wantsLive(intent)) {
-    if (![spotlight, story1, story2].some((t) => t.trim())) return { error: "Write the spotlight or the story first." };
+    if (![spotlight, story1, story2].some(has)) return { error: "Write the spotlight or the story first." };
     if ((p1.id && !p1.alt) || (p2.id && !p2.alt)) return { error: "Every photo needs alt text." };
     if (links.some((l) => !l.label || !safeUrl(l.url))) return { error: "Each link button needs text and an http or https address." };
     if (trivia.some((t) => !t.question.trim() || !t.answer.trim())) return { error: "Each trivia question needs an answer." };
@@ -58,10 +63,10 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
     artist, title, type: type as ReleaseType, releaseDate: dateOnly(str(f, "releaseDate")),
     label: str(f, "label").trim() || null, sourceUrl: str(f, "sourceUrl").trim() || null, coverId: str(f, "coverId") || null,
   };
-  const body = stripMarkup([spotlight, story1, story2].filter((t) => t.trim()).join("\n\n"));
+  const body = [spotlight, story1, story2].map(htmlToText).filter((t) => t).join("\n\n");
   const extra = {
     headline: str(f, "headline").trim().slice(0, 200) || null,
-    structured: true,
+    structured: true, rich: true,
     photo1Id: p1.id, photo1Credit: p1.credit, photo1Alt: p1.alt, spotlight, links, story1,
     photo2Id: p2.id, photo2Credit: p2.credit, photo2Alt: p2.alt, story2, trivia,
     body, bodyHtml: null,
