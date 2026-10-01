@@ -307,3 +307,19 @@ details summary { cursor: pointer; padding-block: 8px; }
 .press-story img, .press-spot img { display: block; max-width: 100%; height: auto; margin: 1.2em auto; border: 2px solid var(--line); }
 .rte-body p.ctr, .rte-body h2.ctr { text-align: center; }
 .rte-body h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; margin: 0.8em 0 0.4em; }
+
+/* quick add and "what I did" */
+.btn.place { font-size: 1rem; padding: 14px 26px; background: var(--accent); color: var(--on-accent); border-color: var(--line); }
+.qa-form .pe-set { margin-top: 18px; }
+.qa-photos { list-style: none; padding: 0; margin: 14px 0; display: grid; gap: 10px; }
+.qa-photos li { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 12px; align-items: center; border: 2px solid var(--line); padding: 8px; }
+.qa-photos li.extra { opacity: 0.55; border-style: dashed; }
+.qa-photos img { width: 72px; height: 54px; object-fit: cover; border: 2px solid var(--line); }
+.did { border: 2px solid var(--line); background: var(--soft); padding: 14px 16px; margin-bottom: 18px; }
+.did h3 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: 1.3rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+.did > p { margin: 0 0 8px; }
+.did ul { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 6px; }
+.did li { padding-left: 22px; position: relative; font-size: 0.95rem; }
+.did li::before { content: "\2022"; position: absolute; left: 6px; }
+.did li.warn { font-weight: 700; }
+.did li.warn::before { content: "!"; left: 4px; color: var(--fg); background: var(--accent); width: 14px; text-align: center; font-weight: 900; }

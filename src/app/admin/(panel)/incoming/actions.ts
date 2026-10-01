@@ -9,6 +9,7 @@ import { safeUrl } from "@/lib/pressText";
 import { htmlToText, sanitizeBody } from "@/lib/richText";
 import { importImages } from "@/lib/pressImages";
 import type { ReleaseType } from "@/generated/prisma/enums";
+import { Prisma } from "@/generated/prisma/client";
 
 // The words are stored exactly as entered. Only unsafe code is removed.
 export async function savePress(_: FormState | undefined, f: FormData): Promise<FormState> {
@@ -70,6 +71,7 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
     photo1Id: p1.id, photo1Credit: p1.credit, photo1Alt: p1.alt, spotlight, links, story1,
     photo2Id: p2.id, photo2Credit: p2.credit, photo2Alt: p2.alt, story2, trivia,
     body, bodyHtml: null,
+    ...(st.status === "PUBLISHED" ? { placementNotes: Prisma.DbNull } : {}),
     receivedFrom: str(f, "receivedFrom").trim() || null, receivedAt: dateOnly(str(f, "receivedAt")), ...st,
   };
   let pid = id;
@@ -91,4 +93,11 @@ export async function savePress(_: FormState | undefined, f: FormData): Promise<
   await audit(u.id, `incoming.${intent}`, "PressRelease", pid);
   revalidatePath("/", "layout");
   redirect(`/admin/incoming/${pid}?saved=1`);
+}
+
+export async function dismissNotes(f: FormData) {
+  await requireAdmin();
+  const id = str(f, "id");
+  await db.pressRelease.update({ where: { id }, data: { placementNotes: Prisma.DbNull } });
+  revalidatePath(`/admin/incoming/${id}`);
 }

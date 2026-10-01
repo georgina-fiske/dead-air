@@ -5,7 +5,8 @@ import { logoutAction } from "../actions";
 export const dynamic = "force-dynamic";
 
 export const NAV = [
-  { href: "/admin", label: "Overview" },
+  { href: "/admin", label: "Quick add" },
+  { href: "/admin/overview", label: "Overview" },
   { href: "/admin/rated", label: "Rated" },
   { href: "/admin/incoming", label: "Incoming" },
   { href: "/admin/off-air", label: "Off Air" },

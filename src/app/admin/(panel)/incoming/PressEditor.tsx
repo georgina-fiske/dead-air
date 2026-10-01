@@ -7,6 +7,8 @@ import { PhotoField, type PhotoState } from "@/components/PhotoField";
 import { PressView } from "@/components/PressView";
 import { normalizeLinks, normalizeTrivia, safeUrl, type TriviaItem } from "@/lib/pressText";
 import { savePress } from "./actions";
+import { WhatIDid, type DidNote } from "./WhatIDid";
+import { draftTriviaAction } from "./triviaAction";
 
 type Row = { key: number; label: string; url: string; iconId: string };
 export type IconOpt = { id: string; name: string };
@@ -20,11 +22,26 @@ export type PressInit = {
 let nextKey = 0;
 const CHIPS = ["Pre-save", "Watch video", "Listen", "Tickets", "Website", "Instagram"];
 
-export function PressEditor({ init, media, icons }: { init: PressInit; media: MediaOpt[]; icons: IconOpt[] }) {
+export function PressEditor({ init, media, icons, notes }: { init: PressInit; media: MediaOpt[]; icons: IconOpt[]; notes?: DidNote[] | null }) {
   const [state, action, pending] = useActionState(savePress, undefined);
   const [v, setV] = useState(init);
   const [rows, setRows] = useState<Row[]>(() => init.links.map((l) => ({ ...l, key: nextKey++ })));
   const [trivia, setTrivia] = useState<TriviaItem[]>(() => [0, 1, 2].map((i) => init.trivia[i] ?? { question: "", answer: "" }));
+  const [drafting, setDrafting] = useState(false);
+  const [drafted, setDrafted] = useState<{ quotes: string[]; dropped: number } | null>(null);
+  const [draftError, setDraftError] = useState("");
+  async function draftWithClaude() {
+    if (trivia.some((t) => t.question.trim() || t.answer.trim()) && !confirm("This replaces the trivia you have typed. Go on?")) return;
+    setDrafting(true); setDraftError(""); setDrafted(null);
+    try {
+      const r = await draftTriviaAction(v.spotlight, v.story1, v.story2);
+      if (r.error) { setDraftError(r.error); return; }
+      if (!r.items.length) { setDraftError(r.dropped ? "Claude's questions could not be checked against the text, so none were used. Write them yourself." : "Claude found no facts to use. Write the questions yourself."); return; }
+      setTrivia([0, 1, 2].map((i) => (r.items[i] ? { question: r.items[i].question, answer: r.items[i].answer } : { question: "", answer: "" })));
+      setDrafted({ quotes: r.items.map((x) => x.quote), dropped: r.dropped });
+    } catch { setDraftError("Something went wrong reaching Claude. Try again."); }
+    finally { setDrafting(false); }
+  }
   const set = <K extends keyof PressInit>(k: K, val: PressInit[K]) => setV((x) => ({ ...x, [k]: val }));
   const text = (k: keyof PressInit) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => set(k, e.target.value as never);
 
@@ -126,6 +143,19 @@ export function PressEditor({ init, media, icons }: { init: PressInit; media: Me
         <fieldset className="pe-set">
           <legend>6. Pub trivia</legend>
           <p className="mono">Up to three questions, each with an answer. Visitors press Reveal answer to see it.</p>
+          <div className="actions" style={{ marginBottom: 12 }}>
+            <button type="button" className="btn ghost" onClick={draftWithClaude} disabled={drafting}>{drafting ? "Drafting." : "Draft with Claude"}</button>
+          </div>
+          {draftError && <p className="err" role="alert">{draftError}</p>}
+          {drafted && (
+            <div className="warn" role="status">
+              <b>Drafted by Claude from the text above. Check every answer before publishing.</b>
+              {drafted.dropped > 0 && <> {drafted.dropped} question{drafted.dropped === 1 ? " was" : "s were"} left out because the line it relied on is not in the text.</>}
+              <ol style={{ margin: "8px 0 0", paddingLeft: 18 }}>
+                {drafted.quotes.map((q, i) => <li key={i} className="mono">Question {i + 1} comes from: &ldquo;{q}&rdquo;</li>)}
+              </ol>
+            </div>
+          )}
           {trivia.map((t, i) => (
             <div key={i} className="qa-edit">
               <Field label={`Question ${i + 1}`}><input name="triviaQ" value={t.question} onChange={(e) => setTrivia((x) => x.map((y, j) => (j === i ? { ...y, question: e.target.value } : y)))} /></Field>
@@ -148,6 +178,7 @@ export function PressEditor({ init, media, icons }: { init: PressInit; media: Me
       </div>
 
       <div className="preview">
+        {notes && notes.length > 0 && init.id && <WhatIDid id={init.id} notes={notes} />}
         <p className="mono">Live preview</p>
         <PressView
           headline={v.headline} artist={v.artist} title={v.title} type={v.type} releaseDate={v.releaseDate || null} label={v.label}
