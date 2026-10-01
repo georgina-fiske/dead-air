@@ -24,7 +24,7 @@ export function IncomingRow({ p }: { p: PR }) {
   );
 }
 
-type IV = { slug: string; artist: string; subtitle: string | null; date: Date | null; isExample: boolean; qa: { id: string; question: string; answer: string }[] };
+type IV = { slug: string; artist: string; subtitle: string | null; date: Date | null; isExample: boolean; qa: { id: string; question: string; answer: string; answerHtml?: string | null }[] };
 export function InterviewCard({ i, full = true }: { i: IV; full?: boolean }) {
   return (
     <article className="card oa">
@@ -33,21 +33,25 @@ export function InterviewCard({ i, full = true }: { i: IV; full?: boolean }) {
       {(full ? i.qa : i.qa.slice(0, 1)).map((x) => (
         <div className="qa" key={x.id}>
           <p className="q">{x.question}</p>
-          <p className="a">{x.answer}</p>
+          {x.answerHtml
+            ? <div className="a-rich"><span className="a-lab">A</span><div className="prose" dangerouslySetInnerHTML={{ __html: x.answerHtml }} /></div>
+            : <p className="a">{x.answer}</p>}
         </div>
       ))}
     </article>
   );
 }
 
-type OP = { slug: string; title: string; body: string; publishedAt: Date | null; isExample: boolean };
+type OP = { slug: string; title: string; body: string; html?: string | null; publishedAt: Date | null; isExample: boolean };
 export function OpinionItem({ o, full = true }: { o: OP; full?: boolean }) {
   const ps = paras(o.body);
   return (
     <article className="ha">
       <h3 className="ct"><Link href={`/hot-air/${o.slug}`}>{o.title}</Link>{o.isExample && <Example />}</h3>
       <p className="sub">{fmtDate(o.publishedAt)}</p>
-      {(full ? ps : ps.slice(0, 1)).map((p, i) => <p key={i}>{p}</p>)}
+      {full && o.html
+        ? <div className="prose" dangerouslySetInnerHTML={{ __html: o.html }} />
+        : (full ? ps : ps.slice(0, 1)).map((p, i) => <p key={i}>{p}</p>)}
     </article>
   );
 }

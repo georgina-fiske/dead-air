@@ -89,7 +89,8 @@ model InterviewQA {
   interview   Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
   position    Int
   question    String
-  answer      String
+  answer      String // plain text
+  answerHtml  String? // same words with links and formatting kept (cleaned)
 
   @@unique([interviewId, position])
 }
@@ -131,7 +132,8 @@ model Opinion {
   id          String    @id @default(cuid())
   slug        String    @unique
   title       String
-  body        String
+  body        String // plain text of the piece
+  bodyHtml    String? // same words with links and formatting kept (cleaned)
   status      Status    @default(DRAFT)
   publishedAt DateTime?
   isExample   Boolean   @default(false)

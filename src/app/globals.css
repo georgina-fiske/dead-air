@@ -241,3 +241,8 @@ details summary { cursor: pointer; padding-block: 8px; }
 .rte-bar button { font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; background: var(--bg); color: var(--fg); border: 2px solid var(--line); padding: 4px 9px; cursor: pointer; }
 .rte-body { min-height: 18rem; max-width: none; padding: 12px 14px; background: var(--bg); outline: none; }
 .rte-body:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+
+.a-rich { display: flex; gap: 8px; align-items: baseline; }
+.a-lab { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+.a-rich .prose { flex: 1; min-width: 0; }
+.a-rich .prose p:last-child { margin-bottom: 0; }

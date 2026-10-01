@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { audit, requireAdmin } from "@/lib/adminAuth";
 import { db } from "@/lib/db";
-import { rawText, resolveStatus, str, wantsLive, type FormState } from "@/lib/adminContent";
+import { resolveStatus, str, wantsLive, type FormState } from "@/lib/adminContent";
+import { htmlToText, sanitizeBody } from "@/lib/richText";
+import { importImages } from "@/lib/pressImages";
 import { uniqueSlug } from "@/lib/slug";
 import { looksLikeSentence } from "@/lib/voice";
 
@@ -18,7 +20,9 @@ export async function saveOpinion(_: FormState | undefined, f: FormData): Promis
     redirect("/admin/hot-air");
   }
   const title = str(f, "title").trim();
-  const body = rawText(f, "body");
+  const imported = await importImages(sanitizeBody(str(f, "bodyHtml")));
+  const bodyHtml = imported.html;
+  const body = htmlToText(bodyHtml);
   if (!title) return { error: "A title is needed." };
   if (wantsLive(intent)) {
     if (!looksLikeSentence(title)) return { error: "The title must be a full sentence with an opinion in it." };
@@ -29,10 +33,10 @@ export async function saveOpinion(_: FormState | undefined, f: FormData): Promis
   if ("error" in st) return st;
   let oid = id;
   if (prev) {
-    await db.opinion.update({ where: { id }, data: { title, body, ...st } });
+    await db.opinion.update({ where: { id }, data: { title, body, bodyHtml, ...st } });
   } else {
     const slug = await uniqueSlug(title, async (s) => !!(await db.opinion.findUnique({ where: { slug: s } })));
-    oid = (await db.opinion.create({ data: { title, body, slug, ...st } })).id;
+    oid = (await db.opinion.create({ data: { title, body, bodyHtml, slug, ...st } })).id;
   }
   await audit(u.id, `hotair.${intent}`, "Opinion", oid);
   revalidatePath("/", "layout");

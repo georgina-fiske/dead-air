@@ -48,7 +48,7 @@ export function PressEditor({ init, media }: { init: PressInit; media: MediaOpt[
         <Field label="Headline" hint="the press release's own headline"><input name="headline" value={v.headline} onChange={set("headline")} maxLength={200} /></Field>
         <div className="fld">
           <span>Press release <em>copy it from the web page or email and paste it in. Links, bold and pictures stay.</em></span>
-          <RichEditor name="bodyHtml" initialHtml={init.bodyHtml} onChange={setHtml} />
+          <RichEditor name="bodyHtml" initialHtml={init.bodyHtml} onChange={(h) => setHtml(h)} />
         </div>
         <span className="verbatim">Verbatim</span> <span className="mono">The words are never changed or checked for voice. Pictures are copied into Media when you save.</span>
         <StatusBar id={init.id} status={init.status} pending={pending} blocked={blocked} error={state?.error} />

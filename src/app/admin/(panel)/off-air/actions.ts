@@ -5,6 +5,8 @@ import { audit, requireAdmin } from "@/lib/adminAuth";
 import { db } from "@/lib/db";
 import { dateOnly, resolveStatus, str, wantsLive, type FormState } from "@/lib/adminContent";
 import { uniqueSlug } from "@/lib/slug";
+import { htmlToText, sanitizeBody } from "@/lib/richText";
+import { importImages } from "@/lib/pressImages";
 
 export async function saveInterview(_: FormState | undefined, f: FormData): Promise<FormState> {
   const u = await requireAdmin();
@@ -20,8 +22,9 @@ export async function saveInterview(_: FormState | undefined, f: FormData): Prom
   if (!artist) return { error: "Artist is needed." };
   // Answers are kept exactly as sent. No trim, no fixes. Only line breaks are made consistent.
   const qs = f.getAll("question").map((q) => String(q).replace(/\r\n/g, "\n"));
-  const as = f.getAll("answer").map((a) => String(a).replace(/\r\n/g, "\n"));
-  const qa = qs.map((question, position) => ({ question: question.trim(), answer: as[position] ?? "", position }))
+  const htmls: string[] = [];
+  for (const a of f.getAll("answerHtml")) htmls.push((await importImages(sanitizeBody(String(a)))).html);
+  const qa = qs.map((question, position) => ({ question: question.trim(), answer: htmlToText(htmls[position] ?? ""), answerHtml: htmls[position] || null, position }))
     .filter((x) => x.question || x.answer.trim());
   if (qa.some((x) => !x.question)) return { error: "Every answer needs a question." };
   if (wantsLive(intent) && (qa.length === 0 || qa.some((x) => !x.answer.trim()))) return { error: "Every question needs an answer before it goes live." };

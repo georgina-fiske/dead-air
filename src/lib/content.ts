@@ -2,6 +2,7 @@ import "server-only";
 import { db } from "@/lib/db";
 import { RUBRIC_VERSION } from "@/lib/rubric";
 import type { Scored } from "@/lib/ranked";
+import { sanitizeBody } from "@/lib/richText";
 
 // Example content shows (tagged) until you set HIDE_EXAMPLES=1 on Railway.
 const hideExamples = () => process.env.HIDE_EXAMPLES === "1";
@@ -23,14 +24,24 @@ export const incomingList = (take?: number) =>
 export const incomingOne = (slug: string) =>
   db.pressRelease.findFirst({ where: { slug, ...liveWhere() }, include: { release: true } });
 
-export const interviewList = (take?: number) =>
+// Pasted formatting is cleaned again on the way out, so nothing unsafe can reach a visitor.
+type InterviewRow = Awaited<ReturnType<typeof rawInterviews>>[number];
+const rawInterviews = (take?: number) =>
   db.interview.findMany({ where: liveWhere(), include: { qa: { orderBy: { position: "asc" } } }, take, orderBy: [{ publishedAt: "desc" }] });
-export const interviewOne = (slug: string) =>
-  db.interview.findFirst({ where: { slug, ...liveWhere() }, include: { qa: { orderBy: { position: "asc" } } } });
+const cleanInterview = (i: InterviewRow) => ({ ...i, qa: i.qa.map((x) => ({ ...x, answerHtml: x.answerHtml ? sanitizeBody(x.answerHtml) : null })) });
+export const interviewList = async (take?: number) => (await rawInterviews(take)).map(cleanInterview);
+export const interviewOne = async (slug: string) => {
+  const i = await db.interview.findFirst({ where: { slug, ...liveWhere() }, include: { qa: { orderBy: { position: "asc" } } } });
+  return i ? cleanInterview(i) : null;
+};
 
-export const opinionList = (take?: number) =>
-  db.opinion.findMany({ where: liveWhere(), take, orderBy: [{ publishedAt: "desc" }] });
-export const opinionOne = (slug: string) => db.opinion.findFirst({ where: { slug, ...liveWhere() } });
+const cleanOpinion = <T extends { bodyHtml: string | null }>(o: T) => ({ ...o, html: o.bodyHtml ? sanitizeBody(o.bodyHtml) : null });
+export const opinionList = async (take?: number) =>
+  (await db.opinion.findMany({ where: liveWhere(), take, orderBy: [{ publishedAt: "desc" }] })).map(cleanOpinion);
+export const opinionOne = async (slug: string) => {
+  const o = await db.opinion.findFirst({ where: { slug, ...liveWhere() } });
+  return o ? cleanOpinion(o) : null;
+};
 
 export const reviewList = (take?: number) =>
   db.review.findMany({ where: liveWhere(), include: { release: true }, take, orderBy: [{ publishedAt: "desc" }] });
